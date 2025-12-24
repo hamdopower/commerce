@@ -34,12 +34,12 @@ const collectionsData = [
 
 export default function FeaturedCollections() {
   const [visibleItems, setVisibleItems] = useState(new Set());
-  const refs = useRef([]);
+  const refs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const observers = refs.current.map((ref, index) => {
       if (!ref) return null;
-      
+
       const observer = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting) {
@@ -50,7 +50,7 @@ export default function FeaturedCollections() {
         },
         { threshold: 0.3 }
       );
-      
+
       observer.observe(ref);
       return observer;
     });
@@ -72,12 +72,11 @@ export default function FeaturedCollections() {
           {collectionsData.map((collection, index) => (
             <div
               key={collection.id}
-              ref={el => refs.current[index] = el}
-              className={`group relative overflow-hidden aspect-[3/4] cursor-pointer transform transition-all duration-700 hover:scale-110 hover:z-20 ${
-                visibleItems.has(index) 
-                  ? 'translate-y-0 opacity-100' 
-                  : 'translate-y-8 opacity-0'
-              }`}
+              ref={el => { refs.current[index] = el; }}
+              className={`group relative overflow-hidden aspect-[3/4] cursor-pointer transform transition-all duration-700 hover:scale-110 hover:z-20 ${visibleItems.has(index)
+                ? 'translate-y-0 opacity-100'
+                : 'translate-y-8 opacity-0'
+                }`}
             >
               <Link href={collection.link} className="block w-full h-full">
                 <div className="relative w-full h-full">
@@ -88,25 +87,25 @@ export default function FeaturedCollections() {
                     className="object-cover object-top transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-all duration-500" />
-                  
+
                   <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-6">
                     <div className="space-y-4 transform transition-all duration-500 group-hover:scale-105">
                       <h3 className="text-white text-2xl md:text-3xl font-black">
                         {collection.name}
                       </h3>
-                      
+
                       {collection.hasButton && (
                         <>
                           <p className="text-white/80 text-sm">
                             {collection.description}
                           </p>
-                          
+
                           <button className="bg-white/20 backdrop-blur-sm text-white px-6 py-3 font-bold border border-white/30 hover:bg-white hover:text-black transition-all duration-300 whitespace-nowrap cursor-pointer">
                             DISCOVER
                           </button>
                         </>
                       )}
-                      
+
                       {!collection.hasButton && (
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                           <p className="text-white/80 text-sm">

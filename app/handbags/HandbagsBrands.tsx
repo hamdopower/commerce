@@ -14,7 +14,7 @@ const brandLogos = [
   {
     name: "Louis Vuitton",
     description: "Iconic French fashion house known for timeless elegance",
-    heritage: "170+ Years", 
+    heritage: "170+ Years",
     specialty: "Monogram Canvas",
     foundedYear: "1854"
   },
@@ -52,7 +52,7 @@ export default function HandbagsBrands() {
   const [selectedBrand, setSelectedBrand] = useState(0);
   const [isAutoScrolling, setIsAutoScrolling] = useState(true);
   const scrollContainerRef = useRef(null);
-  const intervalRef = useRef(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Auto-scroll through brands
   useEffect(() => {
@@ -61,17 +61,19 @@ export default function HandbagsBrands() {
         setSelectedBrand(prev => (prev + 1) % brandLogos.length);
       }, 3000);
     } else {
-      clearInterval(intervalRef.current);
+      if (intervalRef.current) clearInterval(intervalRef.current);
     }
 
-    return () => clearInterval(intervalRef.current);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, [isAutoScrolling]);
 
   // Handle manual brand selection
-  const handleBrandClick = (index) => {
+  const handleBrandClick = (index: number) => {
     setSelectedBrand(index);
     setIsAutoScrolling(false);
-    
+
     // Resume auto-scroll after 5 seconds
     setTimeout(() => {
       setIsAutoScrolling(true);
@@ -94,8 +96,8 @@ export default function HandbagsBrands() {
         {/* Horizontal Scrolling Brand Names */}
         <div className="relative mb-16 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-gray-50 via-transparent to-gray-50 z-10 pointer-events-none"></div>
-          
-          <div 
+
+          <div
             ref={scrollContainerRef}
             className="flex whitespace-nowrap animate-scroll-horizontal"
             style={{
@@ -129,7 +131,7 @@ export default function HandbagsBrands() {
               <p className="text-lg text-gray-600 leading-relaxed mb-6">
                 {brandLogos[selectedBrand].description}
               </p>
-              
+
               <div className="grid grid-cols-2 gap-6">
                 <div className="p-4 bg-white border border-gray-200 shadow-sm">
                   <div className="text-2xl font-bold text-black mb-1">
@@ -155,17 +157,16 @@ export default function HandbagsBrands() {
               </div>
               <div className="text-sm text-gray-500 uppercase tracking-widest">Founded</div>
             </div>
-            
+
             <div className="flex space-x-3">
               {brandLogos.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => handleBrandClick(index)}
-                  className={`w-4 h-4 border-2 transition-all duration-300 cursor-pointer ${
-                    index === selectedBrand
-                      ? 'bg-black border-black scale-125'
-                      : 'border-gray-400 hover:border-black hover:scale-110'
-                  }`}
+                  className={`w-4 h-4 border-2 transition-all duration-300 cursor-pointer ${index === selectedBrand
+                    ? 'bg-black border-black scale-125'
+                    : 'border-gray-400 hover:border-black hover:scale-110'
+                    }`}
                 />
               ))}
             </div>
@@ -206,7 +207,7 @@ export default function HandbagsBrands() {
               <h4 className="font-bold text-gray-900">Authenticity Guaranteed</h4>
               <p className="text-gray-600 text-sm">Every piece is verified authentic</p>
             </div>
-            
+
             <div className="space-y-3">
               <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto">
                 <i className="ri-truck-line text-white w-8 h-8 flex items-center justify-center"></i>
@@ -214,7 +215,7 @@ export default function HandbagsBrands() {
               <h4 className="font-bold text-gray-900">Free Shipping</h4>
               <p className="text-gray-600 text-sm">Complimentary shipping worldwide</p>
             </div>
-            
+
             <div className="space-y-3">
               <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto">
                 <i className="ri-refresh-line text-white w-8 h-8 flex items-center justify-center"></i>
@@ -222,7 +223,7 @@ export default function HandbagsBrands() {
               <h4 className="font-bold text-gray-900">Easy Returns</h4>
               <p className="text-gray-600 text-sm">30-day return policy</p>
             </div>
-            
+
             <div className="space-y-3">
               <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto">
                 <i className="ri-customer-service-2-line text-white w-8 h-8 flex items-center justify-center"></i>

@@ -84,7 +84,7 @@ const categories = ["all", "tote", "crossbody", "clutch", "satchel", "shoulder",
 
 export default function HandbagsGrid() {
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [hoveredItem, setHoveredItem] = useState(null);
+  const [hoveredItem, setHoveredItem] = useState<number | null>(null);
   const [animatingButtons, setAnimatingButtons] = useState(new Set());
   const [wishlistItems, setWishlistItems] = useState(new Set());
   const [isClient, setIsClient] = useState(false);
@@ -101,16 +101,18 @@ export default function HandbagsGrid() {
       setWishlistItems(currentWishlist);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
-  const filteredProducts = selectedCategory === "all" 
-    ? handbagProducts 
+  const filteredProducts = selectedCategory === "all"
+    ? handbagProducts
     : handbagProducts.filter(product => product.category === selectedCategory);
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (product: any) => {
     setAnimatingButtons(prev => new Set([...prev, `cart-${product.id}`]));
-    
+
     cartStore.addToCart({
       id: product.id.toString(),
       name: product.name,
@@ -118,7 +120,7 @@ export default function HandbagsGrid() {
       image: product.image,
       category: 'handbags'
     });
-    
+
     setTimeout(() => {
       setAnimatingButtons(prev => {
         const newSet = new Set(prev);
@@ -128,9 +130,9 @@ export default function HandbagsGrid() {
     }, 600);
   };
 
-  const handleAddToWishlist = (product) => {
+  const handleAddToWishlist = (product: any) => {
     setAnimatingButtons(prev => new Set([...prev, `wishlist-${product.id}`]));
-    
+
     const productItem = {
       id: product.id.toString(),
       name: product.name,
@@ -144,7 +146,7 @@ export default function HandbagsGrid() {
     } else {
       cartStore.addToWishlist(productItem);
     }
-    
+
     setTimeout(() => {
       setAnimatingButtons(prev => {
         const newSet = new Set(prev);
@@ -171,11 +173,10 @@ export default function HandbagsGrid() {
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`px-6 py-3 font-bold text-sm uppercase tracking-wider transition-all duration-300 cursor-pointer whitespace-nowrap ${
-                selectedCategory === category
-                  ? 'bg-black text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`px-6 py-3 font-bold text-sm uppercase tracking-wider transition-all duration-300 cursor-pointer whitespace-nowrap ${selectedCategory === category
+                ? 'bg-black text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
             >
               {category === "all" ? "all" : category}
             </button>
@@ -198,7 +199,7 @@ export default function HandbagsGrid() {
                   fill
                   className="object-cover object-center group-hover:scale-110 transition-transform duration-500"
                 />
-                
+
                 {/* Sale Badge */}
                 {product.isSale && (
                   <div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 text-sm font-bold">
@@ -214,18 +215,15 @@ export default function HandbagsGrid() {
                 )}
 
                 {/* Quick Action Buttons */}
-                <div className={`absolute top-4 right-4 flex flex-col space-y-2 transition-opacity duration-300 ${
-                  hoveredItem === product.id ? 'opacity-100' : 'opacity-0'
-                }`}>
-                  <button 
+                <div className={`absolute top-4 right-4 flex flex-col space-y-2 transition-opacity duration-300 ${hoveredItem === product.id ? 'opacity-100' : 'opacity-0'
+                  }`}>
+                  <button
                     onClick={() => handleAddToWishlist(product)}
-                    className={`bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all duration-300 cursor-pointer transform ${
-                      animatingButtons.has(`wishlist-${product.id}`) ? 'animate-bounce scale-125 bg-red-100' : 'hover:scale-110'
-                    }`}
+                    className={`bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all duration-300 cursor-pointer transform ${animatingButtons.has(`wishlist-${product.id}`) ? 'animate-bounce scale-125 bg-red-100' : 'hover:scale-110'
+                      }`}
                   >
-                    <i className={`w-5 h-5 flex items-center justify-center transition-colors ${
-                      isClient && wishlistItems.has(product.id.toString()) ? 'ri-heart-fill text-red-600' : 'ri-heart-line'
-                    } ${animatingButtons.has(`wishlist-${product.id}`) ? 'text-red-600' : ''}`}></i>
+                    <i className={`w-5 h-5 flex items-center justify-center transition-colors ${isClient && wishlistItems.has(product.id.toString()) ? 'ri-heart-fill text-red-600' : 'ri-heart-line'
+                      } ${animatingButtons.has(`wishlist-${product.id}`) ? 'text-red-600' : ''}`}></i>
                   </button>
                 </div>
               </div>
@@ -251,11 +249,10 @@ export default function HandbagsGrid() {
                   ))}
                 </div>
 
-                <button 
+                <button
                   onClick={() => handleAddToCart(product)}
-                  className={`w-full bg-black text-white py-3 font-bold hover:bg-gray-800 transition-all duration-300 cursor-pointer whitespace-nowrap transform relative overflow-hidden ${
-                    animatingButtons.has(`cart-${product.id}`) ? 'animate-pulse scale-105' : 'hover:scale-105'
-                  }`}
+                  className={`w-full bg-black text-white py-3 font-bold hover:bg-gray-800 transition-all duration-300 cursor-pointer whitespace-nowrap transform relative overflow-hidden ${animatingButtons.has(`cart-${product.id}`) ? 'animate-pulse scale-105' : 'hover:scale-105'
+                    }`}
                 >
                   {animatingButtons.has(`cart-${product.id}`) && (
                     <div className="absolute inset-0 bg-green-600 animate-ping opacity-30"></div>

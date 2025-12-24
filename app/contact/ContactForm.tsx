@@ -13,7 +13,7 @@ export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: any) => {
     const { name, value } = e.target;
     if (name === 'message' && value.length > 500) {
       return;
@@ -24,15 +24,15 @@ export default function ContactForm() {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    
+
     if (formData.message.length > 500) {
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       await fetch('https://readdy.ai/api/form-submit', {
         method: 'POST',
@@ -104,7 +104,7 @@ export default function ContactForm() {
                     placeholder="Enter your full name"
                   />
                 </div>
-                
+
                 <div>
                   <label htmlFor="email" className="block text-sm font-bold text-gray-700 mb-2">
                     Email Address *
@@ -176,7 +176,7 @@ export default function ContactForm() {
                 >
                   {isSubmitting ? 'SENDING...' : 'SEND MESSAGE'}
                 </button>
-                
+
                 <button
                   type="button"
                   onClick={() => setFormData({ name: '', email: '', subject: '', message: '' })}

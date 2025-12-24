@@ -1,18 +1,17 @@
 
 'use client';
 
-export default function ReviewModal({ isOpen, onClose, reviews = [] }) {
+export default function ReviewModal({ isOpen, onClose, reviews = [] }: { isOpen: any; onClose: any; reviews?: any[] }) {
   if (!isOpen) return null;
 
-  const StarRating = ({ rating }) => {
+  const StarRating = ({ rating }: { rating: any }) => {
     return (
       <div className="flex space-x-1">
         {[1, 2, 3, 4, 5].map(star => (
-          <i 
+          <i
             key={star}
-            className={`ri-star-${star <= rating ? 'fill' : 'line'} w-4 h-4 flex items-center justify-center ${
-              star <= rating ? 'text-yellow-400' : 'text-gray-300'
-            }`}
+            className={`ri-star-${star <= rating ? 'fill' : 'line'} w-4 h-4 flex items-center justify-center ${star <= rating ? 'text-yellow-400' : 'text-gray-300'
+              }`}
           />
         ))}
       </div>
@@ -75,18 +74,18 @@ export default function ReviewModal({ isOpen, onClose, reviews = [] }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      
+
       <div className="relative bg-white max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
           <h3 className="text-2xl font-bold">Customer Reviews</h3>
-          <button 
+          <button
             onClick={onClose}
             className="bg-gray-100 rounded-full p-2 hover:bg-gray-200 cursor-pointer"
           >
             <i className="ri-close-line w-6 h-6 flex items-center justify-center"></i>
           </button>
         </div>
-        
+
         <div className="p-6 space-y-6">
           {reviewsToShow.map(review => (
             <div key={review.id} className="border-b pb-6 last:border-b-0">

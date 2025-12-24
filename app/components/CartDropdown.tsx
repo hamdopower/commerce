@@ -22,7 +22,9 @@ export default function CartDropdown({ isOpen, onClose }: CartDropdownProps) {
       setCartItems(cartStore.getCartItems());
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);

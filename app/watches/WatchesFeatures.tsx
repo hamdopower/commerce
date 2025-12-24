@@ -10,7 +10,7 @@ const watchFeatures = [
     description: "Precision mechanical movements crafted by master horologists using centuries-old Swiss techniques and modern innovations."
   },
   {
-    icon: "ri-shield-check-line", 
+    icon: "ri-shield-check-line",
     title: "Lifetime Warranty",
     description: "Comprehensive protection and service support for your investment, backed by authorized service centers worldwide."
   },
@@ -38,12 +38,12 @@ const watchFeatures = [
 
 export default function WatchesFeatures() {
   const [visibleItems, setVisibleItems] = useState(new Set());
-  const refs = useRef([]);
+  const refs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const observers = refs.current.map((ref, index) => {
       if (!ref) return null;
-      
+
       const observer = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting) {
@@ -54,7 +54,7 @@ export default function WatchesFeatures() {
         },
         { threshold: 0.3 }
       );
-      
+
       observer.observe(ref);
       return observer;
     });
@@ -80,18 +80,17 @@ export default function WatchesFeatures() {
           {watchFeatures.map((feature, index) => (
             <div
               key={feature.title}
-              ref={el => refs.current[index] = el}
-              className={`group bg-white p-8 shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer transform ${
-                visibleItems.has(index) 
-                  ? 'translate-y-0 opacity-100 hover:-translate-y-2'
-                  : 'translate-y-8 opacity-0'
-              }`}
+              ref={el => { refs.current[index] = el; }}
+              className={`group bg-white p-8 shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer transform ${visibleItems.has(index)
+                ? 'translate-y-0 opacity-100 hover:-translate-y-2'
+                : 'translate-y-8 opacity-0'
+                }`}
             >
               <div className="space-y-6">
                 <div className="w-16 h-16 bg-amber-100 group-hover:bg-amber-400 flex items-center justify-center transition-colors duration-300">
                   <i className={`${feature.icon} w-8 h-8 flex items-center justify-center text-2xl text-amber-600 group-hover:text-black transition-colors duration-300`}></i>
                 </div>
-                
+
                 <div>
                   <h3 className="text-xl font-black text-black mb-3 group-hover:text-amber-600 transition-colors duration-300">
                     {feature.title}
@@ -100,7 +99,7 @@ export default function WatchesFeatures() {
                     {feature.description}
                   </p>
                 </div>
-                
+
                 <div className="opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0">
                   <button className="text-amber-600 font-bold hover:text-amber-700 transition-colors duration-300 cursor-pointer">
                     Learn More →

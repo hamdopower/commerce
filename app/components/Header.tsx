@@ -26,23 +26,25 @@ export default function Header() {
     const unsubscribe = cartStore.subscribe(() => {
       const newCartCount = cartStore.getCartCount();
       const newWishlistCount = cartStore.getWishlistCount();
-      
+
       // Trigger animations if counts changed
       if (newCartCount !== cartItems) {
         setCartAnimation(true);
         setTimeout(() => setCartAnimation(false), 600);
       }
-      
+
       if (newWishlistCount !== wishlistItems) {
         setWishlistAnimation(true);
         setTimeout(() => setWishlistAnimation(false), 600);
       }
-      
+
       setCartItems(newCartCount);
       setWishlistItems(newWishlistCount);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   // Close dropdowns when clicking outside
@@ -122,22 +124,19 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             {/* Wishlist */}
             <div className="relative wishlist-dropdown">
-              <button 
+              <button
                 onClick={() => {
                   setIsWishlistOpen(!isWishlistOpen);
                   setIsCartOpen(false);
                 }}
-                className={`wishlist-button text-gray-300 hover:text-white p-2 relative transition-all duration-300 cursor-pointer ${
-                  wishlistAnimation ? 'animate-bounce scale-110' : ''
-                }`}
+                className={`wishlist-button text-gray-300 hover:text-white p-2 relative transition-all duration-300 cursor-pointer ${wishlistAnimation ? 'animate-bounce scale-110' : ''
+                  }`}
               >
-                <i className={`w-5 h-5 flex items-center justify-center ${
-                  displayedWishlistItems > 0 ? 'ri-heart-fill text-red-500' : 'ri-heart-line'
-                }`}></i>
+                <i className={`w-5 h-5 flex items-center justify-center ${displayedWishlistItems > 0 ? 'ri-heart-fill text-red-500' : 'ri-heart-line'
+                  }`}></i>
                 {displayedWishlistItems > 0 && (
-                  <span className={`absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center transition-all duration-300 ${
-                    wishlistAnimation ? 'animate-pulse scale-125' : ''
-                  }`}>
+                  <span className={`absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center transition-all duration-300 ${wishlistAnimation ? 'animate-pulse scale-125' : ''
+                    }`}>
                     {displayedWishlistItems}
                   </span>
                 )}
@@ -150,20 +149,18 @@ export default function Header() {
 
             {/* Shopping Cart */}
             <div className="relative cart-dropdown">
-              <button 
+              <button
                 onClick={() => {
                   setIsCartOpen(!isCartOpen);
                   setIsWishlistOpen(false);
                 }}
-                className={`cart-button text-gray-300 hover:text-white p-2 relative transition-all duration-300 cursor-pointer ${
-                  cartAnimation ? 'animate-bounce scale-110' : ''
-                }`}
+                className={`cart-button text-gray-300 hover:text-white p-2 relative transition-all duration-300 cursor-pointer ${cartAnimation ? 'animate-bounce scale-110' : ''
+                  }`}
               >
                 <i className="ri-shopping-bag-line w-5 h-5 flex items-center justify-center"></i>
                 {displayedCartItems > 0 && (
-                  <span className={`absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center transition-all duration-300 ${
-                    cartAnimation ? 'animate-pulse scale-125' : ''
-                  }`}>
+                  <span className={`absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center transition-all duration-300 ${cartAnimation ? 'animate-pulse scale-125' : ''
+                    }`}>
                     {displayedCartItems}
                   </span>
                 )}
@@ -180,9 +177,8 @@ export default function Header() {
               onClick={() => setIsMenuOpen((prev) => !prev)}
             >
               <i
-                className={`${
-                  isMenuOpen ? 'ri-close-line' : 'ri-menu-line'
-                } w-5 h-5 flex items-center justify-center`}
+                className={`${isMenuOpen ? 'ri-close-line' : 'ri-menu-line'
+                  } w-5 h-5 flex items-center justify-center`}
               ></i>
             </button>
           </div>
@@ -238,7 +234,7 @@ export default function Header() {
               {/* Mobile Action Buttons */}
               <div className="px-4 py-3 border-t border-gray-800 mt-4">
                 <div className="flex space-x-4">
-                  <button 
+                  <button
                     onClick={() => {
                       setIsCartOpen(true);
                       setIsMenuOpen(false);
@@ -247,7 +243,7 @@ export default function Header() {
                   >
                     View Cart ({displayedCartItems})
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
                       setIsWishlistOpen(true);
                       setIsMenuOpen(false);

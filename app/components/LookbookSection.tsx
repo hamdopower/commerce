@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 
 export default function LookbookSection() {
   const [visibleItems, setVisibleItems] = useState(new Set());
-  const refs = useRef([]);
+  const refs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const observers = refs.current.map((ref, index) => {
@@ -78,12 +78,11 @@ export default function LookbookSection() {
           {services.map((service, index) => (
             <div
               key={index}
-              ref={el => refs.current[index] = el}
-              className={`text-center p-8 bg-gray-50 hover:bg-gray-100 transition-all duration-500 ${
-                visibleItems.has(index) 
-                  ? 'opacity-100 translate-y-0 scale-100' 
-                  : 'opacity-0 translate-y-8 scale-95'
-              }`}
+              ref={el => { refs.current[index] = el; }}
+              className={`text-center p-8 bg-gray-50 hover:bg-gray-100 transition-all duration-500 ${visibleItems.has(index)
+                ? 'opacity-100 translate-y-0 scale-100'
+                : 'opacity-0 translate-y-8 scale-95'
+                }`}
             >
               <div className="w-20 h-20 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
                 <i className={`${service.icon} text-white w-10 h-10 flex items-center justify-center`}></i>

@@ -75,7 +75,7 @@ const categories = ['all', 'dress', 'sport', 'diving', 'chronograph', 'gmt'];
 
 export default function WatchesGrid() {
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [hoveredItem, setHoveredItem] = useState(null);
+  const [hoveredItem, setHoveredItem] = useState<number | null>(null);
   const [animatingButtons, setAnimatingButtons] = useState(new Set());
   const [wishlistItems, setWishlistItems] = useState(new Set());
   const [isClient, setIsClient] = useState(false);
@@ -91,7 +91,7 @@ export default function WatchesGrid() {
       }
     });
     setWishlistItems(initialWishlist);
-    
+
     // 订阅收藏列表变化
     const unsubscribe = cartStore.subscribe(() => {
       const updatedWishlist = new Set();
@@ -103,16 +103,18 @@ export default function WatchesGrid() {
       setWishlistItems(updatedWishlist);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
-  const filteredProducts = selectedCategory === 'all' 
-    ? watchCollection 
+  const filteredProducts = selectedCategory === 'all'
+    ? watchCollection
     : watchCollection.filter(item => item.category === selectedCategory);
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (product: any) => {
     setAnimatingButtons(prev => new Set([...prev, `cart-${product.id}`]));
-    
+
     cartStore.addToCart({
       id: product.id.toString(),
       name: product.name,
@@ -120,7 +122,7 @@ export default function WatchesGrid() {
       image: product.image,
       category: 'watches'
     });
-    
+
     setTimeout(() => {
       setAnimatingButtons(prev => {
         const newSet = new Set(prev);
@@ -130,9 +132,9 @@ export default function WatchesGrid() {
     }, 600);
   };
 
-  const handleAddToWishlist = (product) => {
+  const handleAddToWishlist = (product: any) => {
     setAnimatingButtons(prev => new Set([...prev, `wishlist-${product.id}`]));
-    
+
     const productItem = {
       id: product.id.toString(),
       name: product.name,
@@ -146,7 +148,7 @@ export default function WatchesGrid() {
     } else {
       cartStore.addToWishlist(productItem);
     }
-    
+
     setTimeout(() => {
       setAnimatingButtons(prev => {
         const newSet = new Set(prev);
@@ -173,11 +175,10 @@ export default function WatchesGrid() {
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`px-6 py-3 font-bold text-sm uppercase tracking-wider transition-all duration-300 cursor-pointer whitespace-nowrap ${
-                selectedCategory === category
-                  ? 'bg-black text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`px-6 py-3 font-bold text-sm uppercase tracking-wider transition-all duration-300 cursor-pointer whitespace-nowrap ${selectedCategory === category
+                ? 'bg-black text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
             >
               {category}
             </button>
@@ -202,7 +203,7 @@ export default function WatchesGrid() {
                     fill
                     className="object-cover object-center group-hover:scale-110 transition-transform duration-500"
                   />
-                  
+
                   {/* Sale Badge */}
                   {!product.isNew && (
                     <div className="absolute top-2 left-2 bg-red-600 text-white px-2 py-1 text-xs font-bold">
@@ -218,19 +219,16 @@ export default function WatchesGrid() {
                   )}
 
                   {/* Quick Action Buttons */}
-                  <div className={`absolute top-2 right-2 transition-opacity duration-300 ${
-                    hoveredItem === product.id ? 'opacity-100' : 'opacity-0'
-                  }`}>
-                    <button 
+                  <div className={`absolute top-2 right-2 transition-opacity duration-300 ${hoveredItem === product.id ? 'opacity-100' : 'opacity-0'
+                    }`}>
+                    <button
                       onClick={() => handleAddToWishlist(product)}
-                      className={`bg-white/90 hover:bg-white p-1.5 rounded-full shadow-lg transition-all duration-300 cursor-pointer transform ${
-                        animatingButtons.has(`wishlist-${product.id}`) ? 'animate-bounce scale-125 bg-red-100' : 'hover:scale-110'
-                      }`}
+                      className={`bg-white/90 hover:bg-white p-1.5 rounded-full shadow-lg transition-all duration-300 cursor-pointer transform ${animatingButtons.has(`wishlist-${product.id}`) ? 'animate-bounce scale-125 bg-red-100' : 'hover:scale-110'
+                        }`}
                       suppressHydrationWarning={true}
                     >
-                      <i className={`w-4 h-4 flex items-center justify-center transition-colors ${
-                        isClient && wishlistItems.has(product.id.toString()) ? 'ri-heart-fill text-red-600' : 'ri-heart-line'
-                      } ${animatingButtons.has(`wishlist-${product.id}`) ? 'text-red-600' : ''}`} suppressHydrationWarning={true}></i>
+                      <i className={`w-4 h-4 flex items-center justify-center transition-colors ${isClient && wishlistItems.has(product.id.toString()) ? 'ri-heart-fill text-red-600' : 'ri-heart-line'
+                        } ${animatingButtons.has(`wishlist-${product.id}`) ? 'text-red-600' : ''}`} suppressHydrationWarning={true}></i>
                     </button>
                   </div>
                 </div>
@@ -257,11 +255,10 @@ export default function WatchesGrid() {
                     ))}
                   </div>
 
-                  <button 
+                  <button
                     onClick={() => handleAddToCart(product)}
-                    className={`w-full bg-black text-white py-2 px-3 text-xs sm:text-sm font-bold hover:bg-gray-800 transition-all duration-300 cursor-pointer whitespace-nowrap transform relative overflow-hidden ${
-                      animatingButtons.has(`cart-${product.id}`) ? 'animate-pulse scale-105' : 'hover:scale-105'
-                    }`}
+                    className={`w-full bg-black text-white py-2 px-3 text-xs sm:text-sm font-bold hover:bg-gray-800 transition-all duration-300 cursor-pointer whitespace-nowrap transform relative overflow-hidden ${animatingButtons.has(`cart-${product.id}`) ? 'animate-pulse scale-105' : 'hover:scale-105'
+                      }`}
                   >
                     {animatingButtons.has(`cart-${product.id}`) && (
                       <div className="absolute inset-0 bg-green-600 animate-ping opacity-30"></div>

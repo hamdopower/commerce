@@ -98,12 +98,12 @@ const featuredCollections = [
 
 export default function ProductShowcase() {
   const [visibleItems, setVisibleItems] = useState(new Set());
-  const refs = useRef([]);
+  const refs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const observers = refs.current.map((ref, index) => {
       if (!ref) return null;
-      
+
       const observer = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting) {
@@ -114,7 +114,7 @@ export default function ProductShowcase() {
         },
         { threshold: 0.3 }
       );
-      
+
       observer.observe(ref);
       return observer;
     });
@@ -140,12 +140,11 @@ export default function ProductShowcase() {
           {featuredCollections.map((collection, index) => (
             <Link key={collection.id} href="/collections">
               <div
-                ref={el => refs.current[index] = el}
-                className={`group relative overflow-hidden aspect-square transform transition-all duration-700 cursor-pointer ${
-                  visibleItems.has(index) 
-                    ? 'translate-y-0 opacity-100' 
-                    : 'translate-y-8 opacity-0'
-                }`}
+                ref={el => { refs.current[index] = el; }}
+                className={`group relative overflow-hidden aspect-square transform transition-all duration-700 cursor-pointer ${visibleItems.has(index)
+                  ? 'translate-y-0 opacity-100'
+                  : 'translate-y-8 opacity-0'
+                  }`}
               >
                 <div className="relative w-full h-full">
                   <Image
@@ -155,19 +154,19 @@ export default function ProductShowcase() {
                     className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-all duration-500" />
-                  
+
                   <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-6">
                     <div className="space-y-4 transform transition-all duration-500 group-hover:scale-105">
                       <div className="space-y-2">
                         <h3 className="text-white text-xl lg:text-2xl font-black">
                           {collection.name}
                         </h3>
-                        
+
                         <p className="text-white/90 text-xs font-medium tracking-wider uppercase">
                           {collection.subtitle}
                         </p>
                       </div>
-                      
+
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-500 space-y-3">
                         <p className="text-white/80 text-xs leading-relaxed max-w-xs mx-auto">
                           {collection.description}

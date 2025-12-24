@@ -21,7 +21,9 @@ export default function WishlistDropdown({ isOpen, onClose }: WishlistDropdownPr
       setWishlistItems(cartStore.getWishlistItems());
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const removeFromWishlist = (id: string) => {

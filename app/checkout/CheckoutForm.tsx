@@ -28,16 +28,18 @@ export default function CheckoutForm() {
   const [orderComplete, setOrderComplete] = useState(false);
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoDiscount, setPromoDiscount] = useState(0);
-  const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     setCartItems(cartStore.getCartItems());
-    
+
     const unsubscribe = cartStore.subscribe(() => {
       setCartItems(cartStore.getCartItems());
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   // Add some sample items if cart is empty for demo
@@ -69,7 +71,7 @@ export default function CheckoutForm() {
           category: 'watches'
         }
       ];
-      
+
       sampleItems.forEach(item => {
         cartStore.addToCart(item);
       });
@@ -83,8 +85,8 @@ export default function CheckoutForm() {
   const total = subtotal + deliveryFee + tax - discount;
 
   const validateForm = () => {
-    const newErrors: {[key: string]: string} = {};
-    
+    const newErrors: { [key: string]: string } = {};
+
     if (!formData.email) newErrors.email = 'Email is required';
     if (!formData.firstName) newErrors.firstName = 'First name is required';
     if (!formData.lastName) newErrors.lastName = 'Last name is required';
@@ -93,14 +95,14 @@ export default function CheckoutForm() {
     if (!formData.postalCode) newErrors.postalCode = 'Postal code is required';
     if (!formData.country) newErrors.country = 'Country is required';
     if (!formData.phone) newErrors.phone = 'Phone number is required';
-    
+
     if (formData.paymentMethod === 'card') {
       if (!formData.cardNumber) newErrors.cardNumber = 'Card number is required';
       if (!formData.cardName) newErrors.cardName = 'Name on card is required';
       if (!formData.expiryDate) newErrors.expiryDate = 'Expiry date is required';
       if (!formData.cvv) newErrors.cvv = 'CVV is required';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -108,12 +110,12 @@ export default function CheckoutForm() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
-    
+
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    
+
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -125,7 +127,7 @@ export default function CheckoutForm() {
       'WELCOME15': 15,
       'FIRST20': 20
     };
-    
+
     const code = formData.promoCode.toUpperCase();
     if (validCodes[code as keyof typeof validCodes]) {
       setPromoApplied(true);
@@ -135,15 +137,15 @@ export default function CheckoutForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     await new Promise(resolve => setTimeout(resolve, 3000));
-    
+
     setOrderComplete(true);
     cartStore.clearCart();
     setIsSubmitting(false);
@@ -152,7 +154,7 @@ export default function CheckoutForm() {
   if (orderComplete) {
     const orderNumber = `ORD-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
     const estimatedDelivery = formData.deliveryOption === 'express' ? '1-2 business days' : '3-5 business days';
-    
+
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12">
         <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8 text-center">
@@ -163,7 +165,7 @@ export default function CheckoutForm() {
           <p className="text-xl text-gray-600 mb-8">
             Thank you for your purchase! Your order has been successfully processed and you will receive a confirmation email shortly.
           </p>
-          
+
           <div className="bg-gray-50 rounded-xl p-8 mb-8 text-left">
             <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">Order Details</h3>
             <div className="space-y-3">
@@ -190,22 +192,22 @@ export default function CheckoutForm() {
               <div className="flex justify-between">
                 <span className="text-gray-600">Shipping Address:</span>
                 <span className="text-gray-900 text-right">
-                  {formData.address}<br/>
-                  {formData.city}, {formData.postalCode}<br/>
+                  {formData.address}<br />
+                  {formData.city}, {formData.postalCode}<br />
                   {formData.country}
                 </span>
               </div>
             </div>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
+            <Link
               href="/"
               className="bg-black text-white px-8 py-3 rounded-lg font-bold hover:bg-gray-800 transition-colors cursor-pointer whitespace-nowrap text-center"
             >
               Continue Shopping
             </Link>
-            <button 
+            <button
               onClick={() => window.print()}
               className="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-bold hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap"
             >
@@ -259,14 +261,13 @@ export default function CheckoutForm() {
                       placeholder="Email address"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${
-                        errors.email ? 'border-red-300' : 'border-gray-300'
-                      }`}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${errors.email ? 'border-red-300' : 'border-gray-300'
+                        }`}
                       required
                     />
                     {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <input
@@ -275,9 +276,8 @@ export default function CheckoutForm() {
                         placeholder="First name"
                         value={formData.firstName}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${
-                          errors.firstName ? 'border-red-300' : 'border-gray-300'
-                        }`}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${errors.firstName ? 'border-red-300' : 'border-gray-300'
+                          }`}
                         required
                       />
                       {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
@@ -289,15 +289,14 @@ export default function CheckoutForm() {
                         placeholder="Last name"
                         value={formData.lastName}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${
-                          errors.lastName ? 'border-red-300' : 'border-gray-300'
-                        }`}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${errors.lastName ? 'border-red-300' : 'border-gray-300'
+                          }`}
                         required
                       />
                       {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
                     </div>
                   </div>
-                  
+
                   <div>
                     <input
                       type="tel"
@@ -305,14 +304,13 @@ export default function CheckoutForm() {
                       placeholder="Phone number"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${
-                        errors.phone ? 'border-red-300' : 'border-gray-300'
-                      }`}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${errors.phone ? 'border-red-300' : 'border-gray-300'
+                        }`}
                       required
                     />
                     {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                   </div>
-                  
+
                   <label className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -340,14 +338,13 @@ export default function CheckoutForm() {
                       placeholder="Street address"
                       value={formData.address}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${
-                        errors.address ? 'border-red-300' : 'border-gray-300'
-                      }`}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${errors.address ? 'border-red-300' : 'border-gray-300'
+                        }`}
                       required
                     />
                     {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <input
@@ -356,9 +353,8 @@ export default function CheckoutForm() {
                         placeholder="City"
                         value={formData.city}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${
-                          errors.city ? 'border-red-300' : 'border-gray-300'
-                        }`}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${errors.city ? 'border-red-300' : 'border-gray-300'
+                          }`}
                         required
                       />
                       {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
@@ -370,23 +366,21 @@ export default function CheckoutForm() {
                         placeholder="Postal code"
                         value={formData.postalCode}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${
-                          errors.postalCode ? 'border-red-300' : 'border-gray-300'
-                        }`}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${errors.postalCode ? 'border-red-300' : 'border-gray-300'
+                          }`}
                         required
                       />
                       {errors.postalCode && <p className="text-red-500 text-xs mt-1">{errors.postalCode}</p>}
                     </div>
                   </div>
-                  
+
                   <div>
                     <select
                       name="country"
                       value={formData.country}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm pr-8 ${
-                        errors.country ? 'border-red-300' : 'border-gray-300'
-                      }`}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm pr-8 ${errors.country ? 'border-red-300' : 'border-gray-300'
+                        }`}
                       required
                     >
                       <option value="">Select country</option>
@@ -411,9 +405,8 @@ export default function CheckoutForm() {
                   Delivery Options
                 </h3>
                 <div className="space-y-3">
-                  <label className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${
-                    formData.deliveryOption === 'standard' ? 'border-black bg-black/5' : 'border-gray-200 hover:border-gray-300'
-                  }`}>
+                  <label className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${formData.deliveryOption === 'standard' ? 'border-black bg-black/5' : 'border-gray-200 hover:border-gray-300'
+                    }`}>
                     <input
                       type="radio"
                       name="deliveryOption"
@@ -430,10 +423,9 @@ export default function CheckoutForm() {
                       <p className="text-sm text-gray-600">3-5 business days</p>
                     </div>
                   </label>
-                  
-                  <label className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${
-                    formData.deliveryOption === 'express' ? 'border-black bg-black/5' : 'border-gray-200 hover:border-gray-300'
-                  }`}>
+
+                  <label className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${formData.deliveryOption === 'express' ? 'border-black bg-black/5' : 'border-gray-200 hover:border-gray-300'
+                    }`}>
                     <input
                       type="radio"
                       name="deliveryOption"
@@ -484,7 +476,7 @@ export default function CheckoutForm() {
                       <span className="text-sm font-medium">PayPal</span>
                     </label>
                   </div>
-                  
+
                   {formData.paymentMethod === 'card' && (
                     <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
                       <div>
@@ -494,14 +486,13 @@ export default function CheckoutForm() {
                           placeholder="Card number"
                           value={formData.cardNumber}
                           onChange={handleInputChange}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${
-                            errors.cardNumber ? 'border-red-300' : 'border-gray-300'
-                          }`}
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${errors.cardNumber ? 'border-red-300' : 'border-gray-300'
+                            }`}
                           required
                         />
                         {errors.cardNumber && <p className="text-red-500 text-xs mt-1">{errors.cardNumber}</p>}
                       </div>
-                      
+
                       <div>
                         <input
                           type="text"
@@ -509,14 +500,13 @@ export default function CheckoutForm() {
                           placeholder="Name on card"
                           value={formData.cardName}
                           onChange={handleInputChange}
-                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${
-                            errors.cardName ? 'border-red-300' : 'border-gray-300'
-                          }`}
+                          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${errors.cardName ? 'border-red-300' : 'border-gray-300'
+                            }`}
                           required
                         />
                         {errors.cardName && <p className="text-red-500 text-xs mt-1">{errors.cardName}</p>}
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <input
@@ -525,9 +515,8 @@ export default function CheckoutForm() {
                             placeholder="MM/YY"
                             value={formData.expiryDate}
                             onChange={handleInputChange}
-                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${
-                              errors.expiryDate ? 'border-red-300' : 'border-gray-300'
-                            }`}
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${errors.expiryDate ? 'border-red-300' : 'border-gray-300'
+                              }`}
                             required
                           />
                           {errors.expiryDate && <p className="text-red-500 text-xs mt-1">{errors.expiryDate}</p>}
@@ -539,9 +528,8 @@ export default function CheckoutForm() {
                             placeholder="CVV"
                             value={formData.cvv}
                             onChange={handleInputChange}
-                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${
-                              errors.cvv ? 'border-red-300' : 'border-gray-300'
-                            }`}
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm ${errors.cvv ? 'border-red-300' : 'border-gray-300'
+                              }`}
                             required
                           />
                           {errors.cvv && <p className="text-red-500 text-xs mt-1">{errors.cvv}</p>}
@@ -549,7 +537,7 @@ export default function CheckoutForm() {
                       </div>
                     </div>
                   )}
-                  
+
                   {formData.paymentMethod === 'paypal' && (
                     <div className="p-4 bg-blue-50 rounded-lg text-center">
                       <i className="ri-paypal-line w-8 h-8 flex items-center justify-center text-blue-600 mx-auto mb-2"></i>
@@ -580,7 +568,7 @@ export default function CheckoutForm() {
           <div className="lg:col-span-1">
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 sticky top-4">
               <h3 className="text-xl font-bold text-gray-900 mb-6">Order Summary</h3>
-              
+
               <div className="space-y-4 mb-6">
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex items-center space-x-4">
@@ -671,12 +659,12 @@ export default function CheckoutForm() {
                     {deliveryFee === 0 ? 'Free shipping included!' : `${formData.deliveryOption === 'express' ? 'Express' : 'Standard'} shipping: $${deliveryFee}`}
                   </span>
                 </div>
-                
+
                 <div className="flex items-center space-x-2 text-blue-700 text-sm p-3 bg-blue-50 rounded-lg">
                   <i className="ri-shield-check-line w-4 h-4 flex items-center justify-center"></i>
                   <span className="font-medium">Secure payment guaranteed</span>
                 </div>
-                
+
                 <div className="flex items-center space-x-2 text-purple-700 text-sm p-3 bg-purple-50 rounded-lg">
                   <i className="ri-refresh-line w-4 h-4 flex items-center justify-center"></i>
                   <span className="font-medium">30-day return policy</span>
